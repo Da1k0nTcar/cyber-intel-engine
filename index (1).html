@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Cyber Threat Intelligence Feed (Global 500+ Sources Engine)</title>
+    <!-- Tailwind CSS CDN (Бесплатно) -->
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen font-sans antialiased">
+
+    <div class="max-w-7xl mx-auto p-4 md:p-6">
+        <!-- Header -->
+        <header class="mb-6 border-b border-slate-800 pb-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+            <div>
+                <h1 class="text-2xl font-bold text-cyan-400 flex items-center gap-2">
+                    🛡️ Global Cyber Intelligence Feed
+                </h1>
+                <p class="text-xs text-slate-400 mt-1">
+                    Сквозной агрегатор ИБ-данных: CERT-центры, поисковики, лаборатории и соцсети со всего мира
+                </p>
+            </div>
+            <div class="flex items-center gap-2 bg-slate-900 border border-slate-800 px-3 py-1.5 rounded-lg text-xs text-slate-300">
+                <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                <span>Доступ без CORS / 405 (Chrome Ready)</span>
+            </div>
+        </header>
+
+        <!-- Control Panel -->
+        <div class="bg-slate-900 p-4 md:p-5 rounded-xl mb-6 border border-slate-800 shadow-xl space-y-4">
+            <div class="flex flex-col sm:flex-row gap-3">
+                <input id="searchInput" type="text" 
+                       placeholder="Ключевое слово, техника, CVE (например: CVE-2026, RCE, Ransomware, Linux)... Пусто = Вся лента" 
+                       class="flex-1 bg-slate-950 border border-slate-800 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-cyan-500 text-slate-200 placeholder-slate-500">
+                <button id="fetchBtn" class="bg-cyan-600 hover:bg-cyan-500 text-white font-medium px-6 py-2.5 rounded-lg text-sm transition flex items-center justify-center gap-2">
+                    <span>Сканировать весь мир</span>
+                </button>
+            </div>
+            
+            <!-- Filter & Stats -->
+            <div class="flex flex-wrap items-center justify-between gap-3 pt-3 border-t border-slate-800/80 text-xs">
+                <div class="flex items-center gap-3">
+                    <span class="text-slate-400 font-medium">Фильтр источников:</span>
+                    <select id="trustFilter" class="bg-slate-950 border border-slate-800 rounded px-2.5 py-1 text-slate-300 focus:outline-none">
+                        <option value="all">🔥 Все источники (Проверенные + Сообщество + Соцсети)</option>
+                        <option value="verified">✅ Только проверенные (Гос. CERT / Реестры / Лаборатории)</option>
+                        <option value="community">⚠️ Только неофициальные (Блоги / Форумы / Telegram)</option>
+                    </select>
+                </div>
+                <div class="flex flex-wrap gap-1.5 text-[11px] text-slate-400">
+                    <span class="bg-slate-800 px-2 py-0.5 rounded text-slate-300">🇺🇸 CISA / NVD</span>
+                    <span class="bg-slate-800 px-2 py-0.5 rounded text-slate-300">🇯🇵 JPCERT</span>
+                    <span class="bg-slate-800 px-2 py-0.5 rounded text-slate-300">🇪🇺 CERT-EU</span>
+                    <span class="bg-slate-800 px-2 py-0.5 rounded text-slate-300">💬 Telegram Feed</span>
+                    <span class="bg-slate-800 px-2 py-0.5 rounded text-slate-300">🏴‍☠️ Reddit r/netsec</span>
+                    <span class="bg-slate-800 px-2 py-0.5 rounded text-slate-300">🌐 Global AssureStart CVE Hub</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Feed Container -->
+        <div id="feedContainer" class="space-y-4">
+            <div class="text-center py-16 text-slate-500 bg-slate-900/40 rounded-xl border border-dashed border-slate-800">
+                Нажмите «Сканировать весь мир» для получения сведений со всех доступных источников.
+            </div>
+        </div>
+    </div>
+
+    <!-- Logic Core -->
+    <script>
+        // Реестр источников: Официальные гос. структуры, Агрегаторы (500+ производителей), Лаборатории, Соцсети, Форумы
+        const GLOBAL_SOURCES = [
+            {
+                name: "CVE Official Aggregated Stream (AssureStart Hub)",
+                country: "🌐 Global Hub (500+ Vendors)",
+                platform: "Vulnerability Engine",
+                domain: "cve.assurestart.co",
+                url: "https://cve.assurestart.co/api/feed.xml",
+                verified: true,
+                rating: "5.0 / 5.0",
+                review: "Сводный агрегатор данных по уязвимостям от 500+ вендоров (Microsoft, Linux, Cisco, Apple). Максимальная глубина покрытия."
+            },
+            {
+                name: "CISA Cyber Advisories",
+                country: "🇺🇸 США",
+                platform: "Gov Agency",
+                domain: "cisa.gov",
+                url: "https://www.cisa.gov/cybersecurity-advisories/all.xml",
+                verified: true,
+                rating: "5.0 / 5.0",
+                review: "Главное правительственное агентство США по кибербезопасности. Эталонная точность данных."
+            },
+            {
+                name: "JPCERT/CC Early Warning",
+                country: "🇯🇵 Япония",
+                platform: "Gov CERT",
+                domain: "jpcert.or.jp",
+                url: "https://www.jpcert.or.jp/english/rss/jpcert.rdf",
+                verified: true,
+                rating: "4.9 / 5.0",
+                review: "Японский национальный центр реагирования. Глубокий анализ угроз и уязвимостей Азиатско-Тихоокеанского региона."
+            },
+            {
+                name: "NIST National Vulnerability Database",
+                country: "🇺🇸 США",
+                platform: "Gov Registry",
+                domain: "nvd.nist.gov",
+                url: "https://nvd.nist.gov/feeds/xml/cve/misc/nvd-rss.xml",
+                verified: true,
+                rating: "5.0 / 5.0",
+                review: "Официальный национальный реестр уязвимостей с оценками CVSS."
+            },
+            {
+                name: "Kaspersky Securelist Lab",
+                country: "🇨🇭 Швейцария / 🇷🇺 РФ",
+                platform: "Research Lab",
+                domain: "securelist.com",
+                url: "https://securelist.com/feed/",
+                verified: true,
+                rating: "4.8 / 5.0",
+                review: "Международная лаборатория: разбор целевых APT-группировок, вирусов и банковских троянов."
+            },
+            {
+                name: "The Hacker News",
+                country: "🌐 Global Media",
+                platform: "Security Media",
+                domain: "thehackernews.com",
+                url: "https://feeds.feedburner.com/TheHackersNews",
+                verified: true,
+                rating: "4.6 / 5.0",
+                review: "Крупнейшее международное профильное издательство. Высокая скорость информирования."
+            },
+            {
+                name: "BleepingComputer Intelligence",
+                country: "🇺🇸 США",
+                platform: "Security Media",
+                domain: "bleepingcomputer.com",
+                url: "https://www.bleepingcomputer.com/feed/",
+                verified: true,
+                rating: "4.7 / 5.0",
+                review: "Лидер по оперативности отслеживания атак вирусов-вымогателей (Ransomware) и утечек."
+            },
+            {
+                name: "Reddit NetSec Community",
+                country: "🌐 Global / Social",
+                platform: "Social Forum",
+                domain: "reddit.com",
+                url: "https://www.reddit.com/r/netsec/.rss",
+                verified: false,
+                rating: "4.0 / 5.0",
+                review: "Сообщество независимых специалистов и исследователей со всего мира. Информация требует перепроверки."
+            },
+            {
+                name: "Habr CyberSecurity Feed",
+                country: "🇷🇺 Россия / СНГ",
+                platform: "Community Blog",
+                domain: "habr.com",
+                url: "https://habr.com/ru/rss/hub/cybersecurity/all/?fl=ru",
+                verified: false,
+                rating: "3.9 / 5.0",
+                review: "Статьи и разборы от практикующих ИБ-инженеров и комьюнити. Возможен субъективный взгляд."
+            },
+            {
+                name: "Telegram InfoSec Channel Stream",
+                country: "🌐 Social Network",
+                platform: "Telegram Feed",
+                domain: "t.me",
+                url: "https://rsshub.app/telegram/channel/inosec",
+                verified: false,
+                rating: "3.3 / 5.0",
+                review: "Агрегированный поток из Telegram-каналов. Максимально быстрая фиксация инсайдов, но высокий риск шума."
+            }
+        ];
+
+        // Фильтр строго за последние 3 месяца (90 дней)
+        function isWithinLast3Months(dateStr) {
+            try {
+                const pubDate = new Date(dateStr);
+                if (isNaN(pubDate.getTime())) return { valid: true, formatted: "Дата не указана" };
+
+                const now = new Date();
+                const ninetyDaysAgo = new Date();
+                ninetyDaysAgo.setDate(now.getDate() - 90);
+
+                const valid = pubDate >= ninetyDaysAgo && pubDate <= now;
+                const formatted = pubDate.toISOString().split('T')[0];
+                return { valid, formatted };
+            } catch (e) {
+                return { valid: true, formatted: "Дата не указана" };
+            }
+        }
+
+        // Очистка HTML разметки из описания
+        function cleanText(html) {
+            if (!html) return "Описание отсутствует.";
+            const tmp = document.createElement("DIV");
+            tmp.innerHTML = html;
+            let text = tmp.textContent || tmp.innerText || "";
+            return text.replace(/\s+/g, ' ').trim().slice(0, 360) + "...";
+        }
+
+        // Автоматическая классификация направлений защиты/атак
+        function detectCategory(title, text) {
+            const combined = (title + " " + text).toLowerCase();
+            if (combined.includes("cve-") || combined.includes("vulnerability") || combined.includes("уязвимость")) return "CVE / Vulnerability";
+            if (combined.includes("ransomware") || combined.includes("вымогатель")) return "Ransomware Attack";
+            if (combined.includes("rce") || combined.includes("exploit") || combined.includes("эксплойт")) return "RCE / Exploit Code";
+            if (combined.includes("phishing") || combined.includes("фишинг")) return "Social Engineering";
+            if (combined.includes("apt") || combined.includes("threat actor")) return "APT Targeted Attack";
+            return "General Threat Intel";
+        }
+
+        // Безопасный вызов источника через прокси для защиты от CORS / 405
+        async function fetchSourceData(source, keyword) {
+            const proxyUrl = `https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(source.url)}`;
+            const controller = new AbortController();
+            const timeout = setTimeout(() => controller.abort(), 8000); // 8 сек таймаут
+
+            try {
+                const res = await fetch(proxyUrl, { signal: controller.signal });
+                clearTimeout(timeout);
+                if (!res.ok) return [];
+
+                const data = await res.json();
+                if (data.status !== 'ok' || !data.items) return [];
+
+                const articles = [];
+                for (const item of data.items) {
+                    const dateCheck = isWithinLast3Months(item.pubDate);
+                    if (!dateCheck.valid) continue; // Отсекаем всё, что старше 3 месяцев
+
+                    const title = item.title ? item.title.trim() : "Без заголовка";
+                    const description = cleanText(item.description || item.content);
+
+                    // Фильтрация по поисковому слову
+                    if (keyword) {
+                        const kw = keyword.toLowerCase();
+                        if (!title.toLowerCase().includes(kw) && !description.toLowerCase().includes(kw)) {
+                            continue;
+                        }
+                    }
+
+                    articles.push({
+                        title: title,
+                        summary: description,
+                        url: item.link,
+                        date: dateCheck.formatted,
+                        country: source.country,
+                        platform: source.platform,
+                        domain: source.domain,
+                        author: item.author || "Аналитическая группа / Сообщество",
+                        category: detectCategory(title, description),
+                        verified: source.verified,
+                        rating: source.rating,
+                        review: source.review
+                    });
+                }
+                return articles;
+            } catch (e) {
+                return []; // При ошибке одного сайта остальные продолжают работу
+            }
+        }
+
+        // Запуск основного сканирования
+        async function runEngine() {
+            const keyword = document.getElementById('searchInput').value.trim();
+            const trustFilter = document.getElementById('trustFilter').value;
+            const container = document.getElementById('feedContainer');
+            const btn = document.getElementById('fetchBtn');
+
+            btn.disabled = true;
+            btn.innerHTML = `<span class="animate-spin">⏳</span> Сбор данных со всего мира...`;
+            container.innerHTML = `<div class="text-center py-16 text-slate-400 animate-pulse">Идет параллельный запрос к узлам ИБ-разведки, соцсетям и CERT-центрам...</div>`;
+
+            // Применение фильтра проверки
+            const targetSources = GLOBAL_SOURCES.filter(s => {
+                if (trustFilter === 'verified') return s.verified === true;
+                if (trustFilter === 'community') return s.verified === false;
+                return true;
+            });
+
+            // Параллельный опрос всех ресурсов без взаимной блокировки
+            const promises = targetSources.map(src => fetchSourceData(src, keyword));
+            const settledResults = await Promise.allSettled(promises);
+
+            let allArticles = [];
+            settledResults.forEach(res => {
+                if (res.status === 'fulfilled' && Array.isArray(res.value)) {
+                    allArticles = allArticles.concat(res.value);
+                }
+            });
+
+            // Сортировка ленты: свежие материалы вверху
+            allArticles.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+            renderCards(allArticles);
+
+            btn.disabled = false;
+            btn.innerHTML = `<span>Сканировать весь мир</span>`;
+        }
+
+        // Рендеринг карточек в виде ленты
+        function renderCards(articles) {
+            const container = document.getElementById('feedContainer');
+
+            if (articles.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center py-12 text-slate-500 bg-slate-900/50 rounded-xl border border-slate-800">
+                        По данному критерию ничего не найдено за последние 3 месяца.
+                    </div>`;
+                return;
+            }
+
+            container.innerHTML = articles.map(item => `
+                <article class="bg-slate-900 border ${item.verified ? 'border-slate-800' : 'border-amber-900/40'} rounded-xl p-5 transition shadow-lg flex flex-col justify-between gap-4">
+                    <div>
+                        <!-- Метаданные (Страна, Площадка, Аккаунт/Автор, Дата) -->
+                        <div class="flex flex-wrap items-center justify-between gap-2 text-xs mb-3">
+                            <div class="flex flex-wrap items-center gap-2">
+                                <span class="bg-slate-950 px-2.5 py-1 rounded border border-slate-800 font-semibold text-slate-300">
+                                    ${item.country}
+                                </span>
+                                <span class="bg-cyan-950 text-cyan-300 px-2.5 py-1 rounded border border-cyan-800/60 font-medium">
+                                    ${item.platform}: <b class="text-slate-200">${item.domain}</b>
+                                </span>
+                                <span class="text-slate-400 bg-slate-950/60 px-2 py-1 rounded border border-slate-800/40">
+                                    👤 ${item.author}
+                                </span>
+                            </div>
+
+                            <!-- Плашка статуса источника -->
+                            <div class="flex items-center gap-2">
+                                ${item.verified 
+                                    ? `<span class="bg-emerald-950/90 text-emerald-400 border border-emerald-800/60 px-2.5 py-0.5 rounded-full font-semibold text-[11px] flex items-center gap-1">
+                                         ✅ Проверенный источник
+                                       </span>`
+                                    : `<span class="bg-amber-950/90 text-amber-300 border border-amber-800/60 px-2.5 py-0.5 rounded-full font-semibold text-[11px] flex items-center gap-1">
+                                         ⚠️ Сообщество / Соцсеть / Непроверенный
+                                       </span>`
+                                }
+                                <span class="text-slate-400 text-xs">📅 ${item.date}</span>
+                            </div>
+                        </div>
+
+                        <!-- Заголовок и Выжимка -->
+                        <h2 class="text-base md:text-lg font-semibold text-slate-100 mb-2 leading-snug">
+                            ${item.title}
+                        </h2>
+                        <p class="text-sm text-slate-300 leading-relaxed mb-3">
+                            ${item.summary}
+                        </p>
+
+                        <!-- Блок отзыва и рейтинга ресурса -->
+                        <div class="bg-slate-950/80 p-3 rounded-lg border border-slate-800/80 text-xs text-slate-400 space-y-1">
+                            <div class="flex items-center justify-between text-slate-300">
+                                <span class="font-semibold text-cyan-400">📊 Оценка надежности ресурса:</span>
+                                <span class="font-mono text-amber-300">${item.rating}</span>
+                            </div>
+                            <p class="italic text-slate-400">
+                                «${item.review}»
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Ссылка и Категория -->
+                    <div class="pt-3 border-t border-slate-800/80 flex items-center justify-between">
+                        <span class="text-[11px] text-slate-500">
+                            Категория: <b class="text-slate-400">${item.category}</b>
+                        </span>
+                        <a href="${item.url}" target="_blank" rel="noopener noreferrer" 
+                           class="inline-flex items-center gap-1.5 text-xs text-cyan-400 hover:text-cyan-300 font-medium transition">
+                            <span>Перейти к источнику (${item.domain}) ↗</span>
+                        </a>
+                    </div>
+                </article>
+            `).join('');
+        }
+
+        // Подключение обработчиков
+        document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('fetchBtn').addEventListener('click', runEngine);
+            document.getElementById('trustFilter').addEventListener('change', runEngine);
+            document.getElementById('searchInput').addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') runEngine();
+            });
+        });
+    </script>
+</body>
+</html>

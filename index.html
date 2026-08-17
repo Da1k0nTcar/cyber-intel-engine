@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Minecraft Server Discovery Portal</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <div class="background-glow"></div>
+
+  <main class="container">
+    <header class="header">
+      <div class="logo-badge">MINECRAFT MONITORING</div>
+      <h1>Глобальный поиск серверов</h1>
+      <p class="subtitle">Найди идеальный сервер: Анархия, RolePlay, Моды, BedWars и Выживание</p>
+    </header>
+
+    <!-- Блок со справочником всех режимов -->
+    <section class="modes-guide">
+      <h2>🎮 Доступные режимы на серверах</h2>
+      <div class="modes-grid">
+        <div class="mode-card">
+          <div class="mode-icon">🎭</div>
+          <h3>RolePlay (RP / РП)</h3>
+          <p>Отыгрыш ролей, персональные истории, политика, государственные фракции, суды и города.</p>
+        </div>
+        <div class="mode-card">
+          <div class="mode-icon">⚙️</div>
+          <h3>Моды & HiTech</h3>
+          <p>Технические и магические сборки: автошахты, ядерные реакторы, космические полеты и Thaumcraft.</p>
+        </div>
+        <div class="mode-card">
+          <div class="mode-icon">💥</div>
+          <h3>Анархия и Гриф</h3>
+          <p>Хаос без правил, зазипованные миры, взрывы баз, клановые войны и кастомные аирдропы.</p>
+        </div>
+        <div class="mode-card">
+          <div class="mode-icon">🛏️</div>
+          <h3>BedWars & SkyWars</h3>
+          <p>Защита кроватей, битвы на небесных островах и динамичный командный паркур.</p>
+        </div>
+        <div class="mode-card">
+          <div class="mode-icon">🏡</div>
+          <h3>Мирное выживание</h3>
+          <p>Строительство городов (Towny), надежные приваты, экономика и торги без постоянных войн.</p>
+        </div>
+        <div class="mode-card">
+          <div class="mode-icon">👑</div>
+          <h3>Королевские битвы</h3>
+          <p>Survival Games и UHC: лутание сундуков на сужающейся карте до последнего выжившего.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Панель фильтров и поиска -->
+    <section class="controls-panel">
+      <div class="search-box">
+        <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input type="text" id="search-input" placeholder="Поиск по названию или режиму (РП, Моды, BedWars, Анархия)..." oninput="handleSearch()">
+      </div>
+
+      <div class="filter-container">
+        <button class="filter-btn active" onclick="filterRegion('ALL', this)">Все регионы</button>
+        <button class="filter-btn" onclick="filterRegion('СНГ', this)">СНГ 🇷🇺</button>
+        <button class="filter-btn" onclick="filterRegion('США', this)">США 🇺🇸</button>
+        <button class="filter-btn" onclick="filterRegion('Европа', this)">Европа 🇪🇺</button>
+      </div>
+
+      <button class="btn-refresh" onclick="loadServers()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/></svg>
+        Обновить онлайн
+      </button>
+    </section>
+
+    <div id="server-list" class="server-grid"></div>
+  </main>
+
+  <script src="script.js"></script>
+</body>
+</html>
