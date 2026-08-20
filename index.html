@@ -3,1113 +3,1346 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SYSTEM ACCESS - Cybersecurity OSINT Terminal</title>
+    <title>FLIPPER ZERO // CYBER TOOL</title>
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=VT323&family=Share+Tech+Mono&display=swap');
+
         * {
             box-sizing: border-box;
             margin: 0;
             padding: 0;
+            user-select: none;
         }
 
-        body, html {
-            width: 100%;
-            height: 100%;
-            background-color: #000000;
-            color: #00FF66;
-            font-family: "Comic Sans MS", "Comic Sans", cursive, sans-serif;
-            overflow-x: hidden;
-        }
-
-        /* МАТРИЦА ФОН */
-        #matrix-canvas {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: 1;
-            pointer-events: none;
-            opacity: 0.25;
-        }
-
-        /* 1. ЭКРАН АВТОРИЗАЦИИ */
-        #login-screen {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: #000000;
-            z-index: 100;
+        body {
+            background-color: #121316;
+            background-image: 
+                radial-gradient(#22252c 20%, transparent 20%),
+                radial-gradient(#22252c 20%, transparent 20%);
+            background-size: 16px 16px;
+            background-position: 0 0, 8px 8px;
+            min-height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
+            font-family: 'VT323', monospace;
+            padding: 20px;
+            color: #000;
         }
 
-        .login-box {
-            border: 2px solid #FFFFFF;
-            padding: 40px 60px;
-            text-align: center;
-            background: #000000;
-            box-shadow: 0 0 25px rgba(0, 255, 102, 0.4);
-            font-family: 'Courier New', Courier, monospace;
-            max-width: 500px;
-            width: 90%;
+        #main-content {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
         }
 
-        .login-title {
-            font-size: 32px;
-            color: #00FF66;
-            letter-spacing: 4px;
-            margin-bottom: 25px;
-            font-weight: bold;
-            text-shadow: 0 0 10px #00FF66;
+        /* ------------------ КОРПУС FLIPPER ZERO ------------------ */
+        .flipper-body {
+            width: 850px;
+            height: 480px;
+            background: #e1e3e7;
+            border-radius: 40px;
+            padding: 35px 40px;
+            box-shadow: 
+                0 30px 70px rgba(0,0,0,0.95),
+                inset 0 3px 6px rgba(255,255,255,1),
+                inset 0 -6px 12px rgba(0,0,0,0.25);
+            border: 4px solid #b8bcc4;
+            position: relative;
+            display: grid;
+            grid-template-columns: 500px 1fr;
+            gap: 40px;
+            align-items: center;
         }
 
-        .login-subtitle {
+        .orange-stripe {
+            position: absolute;
+            left: 0;
+            top: 60px;
+            bottom: 60px;
+            width: 14px;
+            background: #ff5500;
+            border-radius: 0 6px 6px 0;
+            box-shadow: inset 0 0 5px rgba(0,0,0,0.4);
+        }
+
+        .lock-btn-hardware {
+            position: absolute;
+            top: -10px;
+            left: 200px;
+            width: 65px;
+            height: 10px;
+            background: #2b2e38;
+            border: 1px solid #1a1b1e;
+            border-radius: 4px 4px 0 0;
+            cursor: pointer;
+            box-shadow: 0 -2px 4px rgba(0,0,0,0.6);
+            transition: all 0.1s;
+        }
+
+        .lock-btn-hardware:active {
+            transform: translateY(3px);
+        }
+
+        .flipper-logo-text {
+            position: absolute;
+            bottom: 12px;
+            left: 60px;
+            font-family: 'Share Tech Mono', monospace;
             font-size: 14px;
-            color: #00FF66;
+            color: #8f94a0;
             letter-spacing: 2px;
-            margin-bottom: 15px;
-        }
-
-        .password-input-wrapper {
-            border: 1px solid #00FF66;
-            padding: 10px;
-            margin-bottom: 25px;
-            background: #000000;
-        }
-
-        .password-input {
-            width: 100%;
-            background: transparent;
-            border: none;
-            outline: none;
-            color: #00FF66;
-            font-size: 20px;
-            text-align: center;
-            letter-spacing: 5px;
-            font-family: 'Courier New', Courier, monospace;
-        }
-
-        .login-btn {
-            background: transparent;
-            border: 1px solid #00FF66;
-            color: #00FF66;
-            padding: 8px 30px;
-            font-size: 16px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            font-family: 'Courier New', Courier, monospace;
-            text-transform: uppercase;
-        }
-
-        .login-btn:hover {
-            background: #00FF66;
-            color: #000000;
-            box-shadow: 0 0 15px #00FF66;
-        }
-
-        /* 2. ЭКРАН ЗАГРУЗКИ WINDOWS */
-        #init-screen {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: #000000;
-            z-index: 90;
-            display: none;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-        }
-
-        .win-progress-container {
-            width: 450px;
-            border: 2px solid #00FF66;
-            padding: 4px;
-            background: #000;
-            box-shadow: 0 0 15px #00FF66;
-        }
-
-        .win-progress-bar {
-            height: 22px;
-            width: 0%;
-            background: #00FF66;
-            transition: width 0.1s linear;
-            box-shadow: 0 0 10px #00FF66;
-        }
-
-        .init-status {
-            margin-top: 15px;
-            font-size: 16px;
-            color: #00FF66;
-            font-family: monospace;
-        }
-
-        /* 3. ЖИВОЙ АНИМИРОВАННЫЙ ТЕРМИНАЛ LINUX */
-        #terminal-screen {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: #000;
-            z-index: 80;
-            display: none;
-            padding: 25px;
-            font-family: 'Courier New', Courier, monospace;
-            overflow-y: auto;
-            color: #00FF66;
-            box-shadow: inset 0 0 50px rgba(0, 255, 102, 0.2);
-        }
-
-        .term-line {
-            margin-bottom: 5px;
-            line-height: 1.3;
-            font-size: 14px;
-            word-break: break-all;
-        }
-
-        .cursor {
-            display: inline-block;
-            width: 8px;
-            height: 15px;
-            background: #00FF66;
-            margin-left: 5px;
-            animation: blink 0.8s infinite;
-        }
-        @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
-
-        /* 4. ВТОРАЯ СТРАНИЦА: SCI-FI HUD С ИНТЕРФЕЙСОМ И АНИМАЦИЯМИ */
-        #scifi-hud-screen {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: #000000;
-            z-index: 70;
-            display: none;
-            flex-direction: column;
-            padding: 10px;
-            overflow: hidden;
-        }
-
-        .hud-grid {
-            display: grid;
-            grid-template-columns: 300px 1fr 320px;
-            gap: 10px;
-            height: calc(100% - 65px);
-            width: 100%;
-        }
-
-        .hud-panel {
-            border: 1px solid #00FF66;
-            background: rgba(0, 15, 5, 0.9);
-            padding: 12px;
-            display: flex;
-            flex-direction: column;
-            box-shadow: inset 0 0 15px rgba(0, 255, 102, 0.25);
-            position: relative;
-            overflow: hidden;
-        }
-
-        .hud-header {
-            font-size: 13px;
-            border-bottom: 1px solid #00FF66;
-            padding-bottom: 5px;
-            margin-bottom: 10px;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            display: flex;
-            justify-content: space-between;
             font-weight: bold;
         }
 
-        /* Левая панель */
-        .globe-box {
-            width: 110px;
-            height: 110px;
-            border-radius: 50%;
-            border: 2px dashed #00FF66;
-            margin: 5px auto 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 40px;
-            animation: spinGlobe 8s linear infinite;
-            box-shadow: 0 0 15px rgba(0,255,102,0.3);
-        }
-        @keyframes spinGlobe { 100% { transform: rotate(360deg); } }
-
-        .stat-row {
-            display: flex;
-            justify-content: space-between;
-            font-size: 12px;
-            margin-bottom: 6px;
-            font-family: monospace;
+        /* ------------------ ЭКРАН ------------------ */
+        .screen-container {
+            background: #23252b;
+            padding: 12px;
+            border-radius: 18px;
+            border: 3px solid #626773;
+            box-shadow: inset 0 6px 15px rgba(0,0,0,0.9);
         }
 
-        .media-btns {
-            display: flex;
-            gap: 4px;
-            margin-bottom: 10px;
-        }
-        .media-btn {
-            background: #000;
-            border: 1px solid #00FF66;
-            color: #00FF66;
-            font-size: 10px;
-            padding: 4px;
-            flex: 1;
-            cursor: pointer;
-            text-align: center;
-        }
-        .media-btn:hover { background: #00FF66; color: #000; }
-
-        .fans-container {
-            display: flex;
-            justify-content: space-around;
-            margin-top: auto;
-            padding-top: 10px;
-            border-top: 1px dashed #005522;
-        }
-        .fan-icon {
-            width: 50px;
-            height: 50px;
-            border: 2px solid #00FF66;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 22px;
-            animation: fanSpin 1.5s linear infinite;
-        }
-        @keyframes fanSpin { 100% { transform: rotate(360deg); } }
-
-        /* Центральная панель */
-        .func-keys {
-            display: grid;
-            grid-template-columns: repeat(10, 1fr);
-            gap: 4px;
-            margin-bottom: 10px;
-        }
-        .f-key {
-            background: #00220a;
-            border: 1px solid #00FF66;
-            color: #00FF66;
-            text-align: center;
-            font-size: 10px;
-            padding: 5px 0;
-            font-family: monospace;
-        }
-
-        .oscilloscope-canvas {
-            width: 100%;
-            height: 90px;
-            border: 1px solid #00FF66;
-            background: #000;
-            margin-bottom: 10px;
-        }
-
-        .activity-status-table {
-            font-size: 11px;
-            border-collapse: collapse;
-            width: 100%;
-            margin-bottom: 10px;
-            font-family: monospace;
-        }
-        .activity-status-table td {
-            border: 1px solid #005522;
-            padding: 3px 6px;
-        }
-
-        .hacker-silhouette-area {
-            flex-grow: 1;
-            display: flex;
-            justify-content: center;
-            align-items: flex-end;
-            position: relative;
-            background: radial-gradient(circle, rgba(0,255,102,0.15) 0%, rgba(0,0,0,0.95) 80%);
-            border: 1px solid #004411;
-            overflow: hidden;
-        }
-
-        .hacker-avatar {
-            width: 180px;
-            height: 190px;
-            background: #000;
-            border: 2px solid #00FF66;
-            border-radius: 90px 90px 0 0;
-            position: relative;
-            box-shadow: 0 0 30px #00FF66;
+        .flipper-screen {
+            background-color: #ff9100;
+            background-image: repeating-linear-gradient(
+                0deg,
+                rgba(0,0,0,0.05),
+                rgba(0,0,0,0.05) 1px,
+                transparent 1px,
+                transparent 2px
+            );
+            height: 340px;
+            border-radius: 8px;
+            padding: 10px 14px;
+            color: #000000;
             display: flex;
             flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            color: #00FF66;
-            font-size: 12px;
-            text-align: center;
-            font-family: monospace;
+            position: relative;
+            overflow: hidden;
+            box-shadow: inset 0 0 15px rgba(0,0,0,0.3);
         }
 
-        .scan-line {
+        /* Canvas для падения аватарок */
+        #falling-canvas {
             position: absolute;
             top: 0;
             left: 0;
             width: 100%;
-            height: 3px;
-            background: #00FF66;
-            box-shadow: 0 0 10px #00FF66;
-            animation: scanAnim 2.5s ease-in-out infinite alternate;
-        }
-        @keyframes scanAnim { 0% { top: 0%; } 100% { top: 100%; } }
-
-        /* Правая панель */
-        .code-analysis {
-            font-family: 'Courier New', Courier, monospace;
-            font-size: 10px;
-            color: #00FF66;
-            height: 200px;
-            overflow: hidden;
-            border: 1px solid #005522;
-            padding: 8px;
-            background: #000;
-            margin-bottom: 10px;
-            line-height: 1.3;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+            opacity: 0.25;
         }
 
-        .scan-data-table {
-            width: 100%;
-            font-size: 11px;
-            font-family: monospace;
-        }
-        .scan-data-table td {
-            padding: 3px;
-            border-bottom: 1px solid #003311;
-        }
-
-        .enter-workspace-bar {
-            height: 55px;
-            margin-top: 10px;
+        .status-bar {
             display: flex;
-            justify-content: center;
+            justify-content: space-between;
             align-items: center;
-        }
-
-        .enter-workspace-btn {
-            padding: 12px 50px;
-            background: #000;
-            border: 2px solid #00FF66;
-            color: #00FF66;
-            font-size: 18px;
-            cursor: pointer;
-            box-shadow: 0 0 20px #00FF66;
-            font-family: "Comic Sans MS", cursive;
+            font-size: 22px;
             font-weight: bold;
-            transition: all 0.2s;
+            border-bottom: 3px solid #000;
+            padding-bottom: 4px;
+            line-height: 1;
+            letter-spacing: 1px;
+            z-index: 2;
         }
 
-        .enter-workspace-btn:hover {
-            background: #00FF66;
-            color: #000;
+        .status-battery {
+            display: flex;
+            align-items: center;
+            gap: 5px;
         }
 
-        /* 5. РАБОЧИЙ СТОЛ (ЛЕНТА OSINT) */
-        #workspace {
+        .battery-icon {
+            width: 22px;
+            height: 13px;
+            border: 2px solid #000;
+            padding: 1px;
+            display: flex;
+            align-items: center;
             position: relative;
-            z-index: 10;
-            display: none;
-            padding: 20px;
-            max-width: 1600px;
-            margin: 0 auto;
         }
 
-        header {
-            text-align: center;
-            margin-bottom: 20px;
-            border-bottom: 2px solid #00FF66;
-            padding-bottom: 15px;
+        .battery-icon::after {
+            content: '';
+            position: absolute;
+            right: -4px;
+            top: 2px;
+            width: 2px;
+            height: 5px;
+            background: #000;
         }
 
-        header h1 {
-            font-size: 2.2rem;
-            text-shadow: 0 0 10px #00FF66;
+        .battery-fill {
+            width: 100%;
+            height: 100%;
+            background: #000;
         }
 
-        /* ТРЕХКОЛОНОЧНЫЙ ФИЛЬТР */
-        .filter-section {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 20px;
-            background: rgba(10, 10, 10, 0.95);
-            border: 1px solid #00FF66;
-            padding: 20px;
-            margin-bottom: 30px;
-            box-shadow: 0 0 15px rgba(0, 255, 102, 0.2);
+        .screen-content {
+            flex-grow: 1;
+            display: flex;
+            margin-top: 10px;
+            overflow: hidden;
+            position: relative;
+            z-index: 2;
         }
 
-        .filter-col {
+        .screen-layout {
+            display: flex;
+            width: 100%;
+            height: 100%;
+        }
+
+        /* ------------------ ЛЕВАЯ КОЛОНКА (АВАТАР И ВЕРСИЯ) ------------------ */
+        .left-sidebar {
+            width: 125px;
+            border-right: 3px dashed #000;
             display: flex;
             flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding-right: 8px;
         }
 
-        .filter-col label {
-            margin-bottom: 8px;
+        .invader-container {
+            width: 90px;
+            height: 70px;
+            background: #051405;
+            border: 2px solid #000;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: inset 0 0 10px rgba(0,255,0,0.3);
+        }
+
+        .invader-svg {
+            width: 75px;
+            height: 55px;
+            filter: drop-shadow(0px 0px 4px #00ff00);
+        }
+
+        .dolphin-version {
+            margin-top: 12px;
+            font-size: 18px;
             font-weight: bold;
-            font-size: 14px;
+            text-align: center;
+            background: #000;
+            color: #ff9100;
+            padding: 2px 6px;
+            letter-spacing: 1px;
         }
 
-        .filter-col select {
+        .right-viewport {
+            flex-grow: 1;
+            padding-left: 12px;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        /* 1. Авторизация */
+        #auth-view {
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .auth-title {
+            font-size: 22px;
+            text-align: center;
+            font-weight: bold;
             background: #000;
-            color: #00FF66;
-            border: 1px solid #00FF66;
-            padding: 10px;
-            font-family: "Comic Sans MS", cursive;
+            color: #ff9100;
+            padding: 2px;
+        }
+
+        .fl-input-group {
+            display: flex;
+            flex-direction: column;
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        .fl-input {
+            background: #000;
+            color: #ff9100;
+            border: 2px solid #000;
+            padding: 4px 8px;
+            font-family: 'VT323', monospace;
+            font-size: 22px;
             outline: none;
         }
 
-        .apply-btn-container {
-            grid-column: span 3;
-            text-align: center;
-            margin-top: 10px;
-        }
-
-        .apply-filters-btn {
+        .fl-btn {
             background: #000;
-            color: #00FF66;
-            border: 2px solid #00FF66;
-            padding: 12px 40px;
-            font-size: 18px;
+            color: #ff9100;
+            border: none;
+            padding: 6px;
+            font-family: 'VT323', monospace;
+            font-size: 22px;
+            font-weight: bold;
             cursor: pointer;
-            box-shadow: 0 0 10px #00FF66;
-            font-family: "Comic Sans MS", cursive;
+            margin-top: 6px;
+            text-align: center;
         }
 
-        .apply-filters-btn:hover {
-            background: #00FF66;
-            color: #000;
+        .fl-btn:hover {
+            background: #222;
         }
 
-        .feed-container {
-            display: flex;
+        #auth-error {
+            color: #8b0000;
+            font-size: 18px;
+            font-weight: bold;
+            text-align: center;
+            display: none;
+        }
+
+        /* 2. Терминал */
+        #boot-terminal {
+            width: 100%;
+            height: 100%;
+            background: #000;
+            color: #ff9100;
+            font-size: 16px;
+            padding: 6px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+            display: none;
+        }
+
+        /* 3. Меню OS */
+        #os-menu {
+            display: none;
+            width: 100%;
             flex-direction: column;
-            gap: 25px;
+            gap: 4px;
+            overflow-y: auto;
         }
 
-        .card {
-            background: rgba(5, 5, 5, 0.95);
-            border: 1px solid #00FF66;
-            padding: 20px;
-            box-shadow: 0 0 10px rgba(0, 255, 102, 0.15);
+        .menu-item {
+            font-size: 22px;
+            line-height: 1.1;
+            padding: 3px 6px;
+            font-weight: bold;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-radius: 3px;
+        }
+
+        .menu-item.active {
+            background-color: #000000;
+            color: #ff9100;
+        }
+
+        .menu-icon {
+            font-size: 18px;
+        }
+
+        /* 4. Поисковик */
+        #search-view {
+            display: none;
+            flex-direction: column;
+            width: 100%;
+            gap: 8px;
+        }
+
+        /* 5. Лента публикаций */
+        #feed-view {
+            display: none;
+            flex-direction: column;
+            width: 100%;
+            height: 100%;
+            overflow-y: auto;
+            gap: 8px;
+            padding-right: 4px;
+        }
+
+        .screen-card {
+            border: 2px solid #000;
+            background: rgba(0,0,0,0.06);
+            padding: 6px;
+            font-size: 17px;
+            line-height: 1.1;
+        }
+
+        .screen-card.selected-card {
+            background: #000;
+            color: #ff9100;
+        }
+
+        .screen-card.selected-card .screen-link {
+            color: #ff5500;
+        }
+
+        .screen-card-title {
+            font-weight: bold;
+            background: #000;
+            color: #ff9100;
+            padding: 2px 4px;
+            margin-bottom: 4px;
+            font-size: 19px;
+        }
+
+        .screen-card-meta {
+            font-size: 15px;
+            margin-top: 4px;
+            border-top: 2px dashed #000;
+            padding-top: 3px;
+        }
+
+        .screen-link {
+            color: #000;
+            font-weight: bold;
+            text-decoration: underline;
+            word-break: break-all;
+        }
+
+        /* 6. Игры */
+        #game-view {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            height: 100%;
             position: relative;
         }
 
-        .card-header {
+        #game-canvas {
+            background: #ff9100;
+            border: 3px solid #000;
+        }
+
+        .game-header {
             display: flex;
             justify-content: space-between;
-            align-items: flex-start;
-            border-bottom: 1px dashed #00FF66;
-            padding-bottom: 10px;
-            margin-bottom: 15px;
+            width: 100%;
+            padding: 0 10px;
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 4px;
         }
 
-        .card-meta {
-            font-size: 12px;
-            color: #00cc55;
-        }
-
-        .card-title {
-            font-size: 1.3rem;
-            margin-bottom: 10px;
-            color: #ffffff;
-        }
-
-        .card-opinion {
-            background: #0a1a0f;
-            border-left: 4px solid #00FF66;
-            padding: 10px;
-            margin: 15px 0;
-            color: #33ff88;
-            font-style: italic;
-        }
-
-        .card-reviews-block {
-            margin-top: 15px;
-            border-top: 1px solid #222;
-            padding-top: 10px;
-        }
-
-        .reviews-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 10px;
-            margin-top: 10px;
-        }
-
-        .review-site-badge {
-            background: #111;
-            border: 1px solid #00FF66;
-            padding: 8px;
-            font-size: 11px;
+        /* ------------------ D-PAD ------------------ */
+        .controls-wrapper {
             display: flex;
             flex-direction: column;
-            justify-content: space-between;
-        }
-
-        .btn-direct-link {
-            display: inline-block;
-            margin-top: 15px;
-            padding: 8px 20px;
-            background: #000;
-            color: #00FF66;
-            border: 1px solid #00FF66;
-            text-decoration: none;
-            font-size: 14px;
-            transition: all 0.2s;
-        }
-
-        .btn-direct-link:hover {
-            background: #00FF66;
-            color: #000;
-        }
-
-        .pagination {
-            display: flex;
+            align-items: center;
             justify-content: center;
-            flex-wrap: wrap;
-            gap: 6px;
-            margin: 40px 0;
+            gap: 25px;
         }
 
-        .page-btn {
-            background: #000;
-            border: 1px solid #00FF66;
-            color: #00FF66;
-            padding: 8px 12px;
+        .dpad-container {
+            position: relative;
+            width: 160px;
+            height: 160px;
+        }
+
+        .dpad-bg {
+            width: 100%;
+            height: 100%;
+            background: #2b2e38;
+            border-radius: 50%;
+            border: 3px solid #1a1b1e;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.6);
+            position: relative;
+        }
+
+        .d-btn {
+            position: absolute;
+            background: transparent;
+            border: none;
             cursor: pointer;
-            font-family: "Comic Sans MS", cursive;
+            color: #ffffff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            transition: all 0.1s;
         }
 
-        .page-btn.active, .page-btn:hover {
-            background: #00FF66;
-            color: #000;
+        .d-btn:active {
+            opacity: 0.6;
         }
 
-        @media (max-width: 1024px) {
-            .hud-grid { grid-template-columns: 1fr; overflow-y: auto; }
-            .filter-section { grid-template-columns: 1fr; }
-            .apply-btn-container { grid-column: span 1; }
-            .reviews-grid { grid-template-columns: repeat(2, 1fr); }
+        .d-up { top: 8px; left: 60px; width: 40px; height: 35px; }
+        .d-down { bottom: 8px; left: 60px; width: 40px; height: 35px; }
+        .d-left { top: 60px; left: 8px; width: 35px; height: 40px; }
+        .d-right { top: 60px; right: 8px; width: 35px; height: 40px; }
+
+        .d-ok {
+            top: 50px;
+            left: 50px;
+            width: 60px;
+            height: 60px;
+            background: #ff5500;
+            border-radius: 10px;
+            border: 2px solid #1a1b1e;
+            color: #000000;
+            font-family: 'VT323', monospace;
+            font-size: 26px;
+            font-weight: bold;
+            box-shadow: inset 0 2px 4px rgba(255,255,255,0.4);
         }
 
-        @media (max-width: 768px) {
-            .reviews-grid { grid-template-columns: 1fr; }
+        .d-ok:active {
+            transform: scale(0.95);
+        }
+
+        .back-btn {
+            width: 100px;
+            height: 45px;
+            background: #2b2e38;
+            border-radius: 22px;
+            border: 2px solid #1a1b1e;
+            cursor: pointer;
+            box-shadow: 0 5px 0 #15161a, 0 8px 10px rgba(0,0,0,0.5);
+            color: #ffffff;
+            font-family: 'VT323', monospace;
+            font-weight: bold;
+            font-size: 22px;
+            letter-spacing: 1px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .back-btn:active {
+            transform: translateY(3px);
+            box-shadow: 0 2px 0 #15161a;
         }
     </style>
 </head>
 <body>
 
-    <!-- МАТРИЦА ФОН -->
-    <canvas id="matrix-canvas"></canvas>
+    <div id="main-content">
+        <div class="flipper-body">
+            <div class="orange-stripe"></div>
+            <div class="flipper-logo-text">FLIPPER ZERO // CYBER TOOL</div>
+            
+            <button class="lock-btn-hardware" onclick="lockDevice()" title="Заблокировать устройство"></button>
 
-    <!-- 1. ЭКРАН ВХОДА -->
-    <div id="login-screen">
-        <div class="login-box">
-            <div class="login-title">SYSTEM ACCESS</div>
-            <div class="login-subtitle">ENTER PASSWORD</div>
-            <div class="password-input-wrapper">
-                <input type="password" id="pass-field" class="password-input" value="********" readonly>
-            </div>
-            <button class="login-btn" onclick="startAuthProcess()">LOGIN</button>
-        </div>
-    </div>
-
-    <!-- 2. ИНИЦИАЛИЗАЦИЯ / WINDOWS PROGRESS BAR -->
-    <div id="init-screen">
-        <div class="win-progress-container">
-            <div class="win-progress-bar" id="win-bar"></div>
-        </div>
-        <div class="init-status" id="init-status-text">Инициализация модулей системы...</div>
-    </div>
-
-    <!-- 3. ЛИНУКС ТЕРМИНАЛ (АНИМИРОВАННЫЙ ЖИВОЙ ВВОД) -->
-    <div id="terminal-screen">
-        <div id="terminal-content"></div>
-    </div>
-
-    <!-- 4. SCI-FI HUD ТЕРМИНАЛ И ХАКЕР -->
-    <div id="scifi-hud-screen">
-        <div class="hud-grid">
-            <!-- Левая панель -->
-            <div class="hud-panel">
-                <div class="hud-header">
-                    <span>VISUAL-NINE</span>
-                    <span>LIVE</span>
-                </div>
-                <div class="media-btns">
-                    <button class="media-btn">REC</button>
-                    <button class="media-btn">REW</button>
-                    <button class="media-btn">PLAY</button>
-                    <button class="media-btn">FFWD</button>
-                </div>
-                <div class="globe-box">🌐</div>
-                <div style="margin-bottom: 10px;">
-                    <div class="stat-row"><span>CPU</span><span id="cpu-val">39%</span></div>
-                    <div class="stat-row"><span>MEMORY</span><span id="mem-val">65%</span></div>
-                    <div class="stat-row"><span>SSD</span><span>39%</span></div>
-                    <div class="stat-row"><span>GPU</span><span id="gpu-val">92%</span></div>
-                    <div class="stat-row"><span>WLAN</span><span>27%</span></div>
-                </div>
-                <div class="fans-container">
-                    <div style="text-align: center;">
-                        <div class="fan-icon">☣️</div>
-                        <span style="font-size: 9px;">FAN 01</span>
+            <!-- ДИСПЛЕЙ -->
+            <div class="screen-container">
+                <div class="flipper-screen">
+                    <canvas id="falling-canvas"></canvas>
+                    
+                    <div class="status-bar">
+                        <span>SD: OK [MHz]</span>
+                        <span id="os-status">MAIN MENU</span>
+                        <div class="status-battery">
+                            <div class="battery-icon"><div class="battery-fill"></div></div>
+                            <span>100%</span>
+                        </div>
                     </div>
-                    <div style="text-align: center;">
-                        <div class="fan-icon">☢️</div>
-                        <span style="font-size: 9px;">FAN 02</span>
+                    
+                    <div class="screen-content">
+                        <div class="screen-layout">
+                            <div class="left-sidebar">
+                                <div class="invader-container">
+                                    <svg class="invader-svg" viewBox="0 0 11 8" shape-rendering="crispEdges">
+                                        <defs>
+                                            <linearGradient id="invaderGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+                                                <stop offset="0%" stop-color="#80ff80" />
+                                                <stop offset="100%" stop-color="#00be00" />
+                                            </linearGradient>
+                                        </defs>
+                                        <rect x="2" y="0" width="1" height="1" fill="url(#invaderGrad)"/>
+                                        <rect x="8" y="0" width="1" height="1" fill="url(#invaderGrad)"/>
+                                        <rect x="3" y="1" width="1" height="1" fill="url(#invaderGrad)"/>
+                                        <rect x="7" y="1" width="1" height="1" fill="url(#invaderGrad)"/>
+                                        <rect x="2" y="2" width="7" height="1" fill="url(#invaderGrad)"/>
+                                        <rect x="1" y="3" width="2" height="1" fill="url(#invaderGrad)"/>
+                                        <rect x="4" y="3" width="3" height="1" fill="url(#invaderGrad)"/>
+                                        <rect x="8" y="3" width="2" height="1" fill="url(#invaderGrad)"/>
+                                        <rect x="0" y="4" width="11" height="1" fill="url(#invaderGrad)"/>
+                                        <rect x="0" y="5" width="1" height="1" fill="url(#invaderGrad)"/>
+                                        <rect x="2" y="5" width="7" height="1" fill="url(#invaderGrad)"/>
+                                        <rect x="10" y="5" width="1" height="1" fill="url(#invaderGrad)"/>
+                                        <rect x="0" y="6" width="1" height="1" fill="url(#invaderGrad)"/>
+                                        <rect x="2" y="6" width="1" height="1" fill="url(#invaderGrad)"/>
+                                        <rect x="8" y="6" width="1" height="1" fill="url(#invaderGrad)"/>
+                                        <rect x="10" y="6" width="1" height="1" fill="url(#invaderGrad)"/>
+                                        <rect x="3" y="7" width="2" height="1" fill="url(#invaderGrad)"/>
+                                        <rect x="6" y="7" width="2" height="1" fill="url(#invaderGrad)"/>
+                                    </svg>
+                                </div>
+                                <div class="dolphin-version">версия 7.2</div>
+                            </div>
+
+                            <div class="right-viewport">
+                                <!-- 1. АВТОРИЗАЦИЯ -->
+                                <div id="auth-view">
+                                    <div class="auth-title">-- AUTHENTICATION --</div>
+                                    <div class="fl-input-group">
+                                        <label>LOGIN:</label>
+                                        <input type="text" id="fl-username" class="fl-input" value="" placeholder="Username..." autocomplete="off">
+                                    </div>
+                                    <div class="fl-input-group">
+                                        <label>PASSWORD:</label>
+                                        <input type="password" id="fl-password" class="fl-input" value="" placeholder="Password...">
+                                    </div>
+                                    <button class="fl-btn" onclick="checkAuth()">[ LOGIN SYSTEM ]</button>
+                                    <div id="auth-error">ACCESS DENIED</div>
+                                </div>
+
+                                <!-- 2. ТЕРМИНАЛ ЗАГРУЗКИ -->
+                                <div id="boot-terminal"></div>
+
+                                <!-- 3. ГЛАВНОЕ МЕНЮ / ПОДМЕНЮ -->
+                                <div id="os-menu"></div>
+
+                                <!-- 4. ПОИСКОВИК -->
+                                <div id="search-view">
+                                    <div class="auth-title" id="search-title">SEARCH ENGINE</div>
+                                    <div class="fl-input-group">
+                                        <label>QUERY:</label>
+                                        <input type="text" id="fl-search-input" class="fl-input" placeholder="CVE, APT, vendor...">
+                                    </div>
+                                    <button class="fl-btn" onclick="executeSearch()">[ RUN SEARCH ]</button>
+                                </div>
+
+                                <!-- 5. ЛЕНТА ПУБЛИКАЦИЙ -->
+                                <div id="feed-view"></div>
+
+                                <!-- 6. ИГРЫ -->
+                                <div id="game-view">
+                                    <div class="game-header">
+                                        <span id="game-score-lbl">SCORE: 00</span>
+                                        <span id="game-high-lbl">HIGH: 00</span>
+                                    </div>
+                                    <canvas id="game-canvas" width="280" height="200"></canvas>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
 
-            <!-- Центральная панель -->
-            <div class="hud-panel">
-                <div class="hud-header">FUNCTION KEYBOARD & SPECTRUM</div>
-                <div class="func-keys">
-                    <div class="f-key">F1</div><div class="f-key">F2</div><div class="f-key">F3</div><div class="f-key">F4</div><div class="f-key">F5</div>
-                    <div class="f-key">F6</div><div class="f-key">F7</div><div class="f-key">F8</div><div class="f-key">F9</div><div class="f-key">F10</div>
-                </div>
-
-                <!-- Живой осциллограф -->
-                <canvas id="osc-canvas" class="oscilloscope-canvas"></canvas>
-
-                <div class="hud-header">ACTIVITY STATUS</div>
-                <table class="activity-status-table">
-                    <tr><td>MUST_BE_PUBLIC</td><td>"Must_be_public"</td></tr>
-                    <tr><td>REMOTE_UPLOAD</td><td>"Remote Upload Active"</td></tr>
-                    <tr><td>SHODAN_ENGINE</td><td>"Scanning Ports 80, 443, 8080..."</td></tr>
-                    <tr><td>OSINT_SYNC</td><td>"Syncing 900+ CVE Records"</td></tr>
-                </table>
-
-                <div class="hacker-silhouette-area">
-                    <div class="scan-line"></div>
-                    <div class="hacker-avatar">
-                        <div style="font-size: 40px;">👨‍💻</div>
-                        <div>OPERATOR ACTIVE</div>
-                        <div style="font-size: 9px; color: #00cc55;">ID: #8849-SEC</div>
+            <!-- D-PAD И КНОПКИ УПРАВЛЕНИЯ -->
+            <div class="controls-wrapper">
+                <div class="dpad-container">
+                    <div class="dpad-bg">
+                        <button class="d-btn d-up" onclick="navMenu('up')">▲</button>
+                        <button class="d-btn d-down" onclick="navMenu('down')">▼</button>
+                        <button class="d-btn d-left" onclick="navMenu('left')">◄</button>
+                        <button class="d-btn d-right" onclick="navMenu('right')">►</button>
+                        <button class="d-btn d-ok" onclick="execMenu()">OK</button>
                     </div>
                 </div>
-            </div>
-
-            <!-- Правая панель -->
-            <div class="hud-panel">
-                <div class="hud-header">ANALYSIS (BIOS 1.7)</div>
-                <div class="code-analysis" id="code-box"></div>
-                
-                <div class="hud-header">SCAN DATA</div>
-                <table class="scan-data-table">
-                    <tr><td>FC2MV</td><td id="sd-1">1217</td></tr>
-                    <tr><td>OLIVE</td><td id="sd-2">6755</td></tr>
-                    <tr><td>FMUWF</td><td id="sd-3">3515</td></tr>
-                    <tr><td>AXUHQ</td><td id="sd-4">2546</td></tr>
-                    <tr><td>TQNAJ</td><td id="sd-5">2525</td></tr>
-                    <tr><td>EBYLU</td><td id="sd-6">1315</td></tr>
-                </table>
+                <button class="back-btn" onclick="resetMenu()">BACK</button>
             </div>
         </div>
-
-        <div class="enter-workspace-bar">
-            <button class="enter-workspace-btn" onclick="openWorkspace()">ПЕРЕЙТИ В ЛЕНТУ OSINT</button>
-        </div>
-    </div>
-
-    <!-- 5. ОСНОВНОЙ РАБОЧИЙ СТОЛ (ЛЕНТА OSINT И ИСТОЧНИКИ) -->
-    <div id="workspace">
-        <header>
-            <h1>GLOBAL CYBERSECURITY OSINT MONITORING SYSTEM</h1>
-            <p>Мониторинг угроз, CVE, APT-атак и сканирование устройств через Shodan и CERT в реальном времени</p>
-        </header>
-
-        <!-- ТРЕХКОЛОНОЧНАЯ СЕКЦИЯ ФИЛЬТРОВ -->
-        <div class="filter-section">
-            <div class="filter-col">
-                <label>1. ЗА КАКОЙ ПЕРИОД ВРЕМЕНИ:</label>
-                <select id="filter-time">
-                    <option value="all">За все время</option>
-                    <option value="24h">За последние 24 часа</option>
-                    <option value="7d">За последнюю неделю</option>
-                    <option value="30d">За последний месяц</option>
-                    <option value="1y">За последний год</option>
-                </select>
-            </div>
-            <div class="filter-col">
-                <label>2. КАТЕГОРИЯ ИСТОЧНИКА:</label>
-                <select id="filter-cat">
-                    <option value="all">Все категории источников</option>
-                    <option value="cert">CERT / CSIRT Агентства</option>
-                    <option value="vendor">Вендоры и Разработчики</option>
-                    <option value="cti">Threat Intelligence / R&D</option>
-                    <option value="shodan">Shodan / IoT & Network Recon</option>
-                    <option value="media">Профильные СМИ и Сообщества</option>
-                    <option value="cloud">Cloud / Container Security</option>
-                </select>
-            </div>
-            <div class="filter-col">
-                <label>3. ОЦЕНКА НАДЕЖНОСТИ:</label>
-                <select id="filter-trust">
-                    <option value="all">Все оценки (100% Verified)</option>
-                    <option value="high">Только Высокий доверительный статус</option>
-                    <option value="verified">Официально проверенный источник</option>
-                </select>
-            </div>
-            <div class="apply-btn-container">
-                <button class="apply-filters-btn" onclick="applyFilters()">ПРИМЕНИТЬ ФИЛЬТРЫ</button>
-            </div>
-        </div>
-
-        <!-- ЛЕНТА ПУБЛИКАЦИЙ -->
-        <div class="feed-container" id="feed"></div>
-
-        <!-- ПАГИНАЦИЯ (30 СТРАНИЦ) -->
-        <div class="pagination" id="pagination"></div>
     </div>
 
     <script>
-        /* === 1. МАТРИЦА ФОН === */
-        const canvas = document.getElementById('matrix-canvas');
-        const ctx = canvas.getContext('2d');
-        canvas.width = window.innerWidth;
-        canvas.height = window.innerHeight;
+        // --- ЭФФЕКТ ПАДАЮЩИХ ПИКСЕЛЬНЫХ ЗНАЧКОВ ---
+        const fallCanvas = document.getElementById('falling-canvas');
+        const fallCtx = fallCanvas.getContext('2d');
+        let fallWidth = fallCanvas.width = 470;
+        let fallHeight = fallCanvas.height = 340;
 
-        const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789@#$%^&*()*&^%";
-        const fontSize = 14;
-        const columns = canvas.width / fontSize;
-        const drops = Array.from({ length: columns }).fill(1);
-
-        function drawMatrix() {
-            ctx.fillStyle = "rgba(0, 0, 0, 0.05)";
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
-            ctx.fillStyle = "#00FF66";
-            ctx.font = fontSize + "px monospace";
-
-            for (let i = 0; i < drops.length; i++) {
-                const text = chars.charAt(Math.floor(Math.random() * chars.length));
-                ctx.fillText(text, i * fontSize, drops[i] * fontSize);
-                if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) {
-                    drops[i] = 0;
-                }
-                drops[i]++;
-            }
-        }
-        setInterval(drawMatrix, 33);
-
-        /* === 2. ЭКРАНЫ И ИНИЦИАЛИЗАЦИЯ === */
-        function startAuthProcess() {
-            document.getElementById('login-screen').style.display = 'none';
-            document.getElementById('init-screen').style.display = 'flex';
-
-            let progress = 0;
-            const bar = document.getElementById('win-bar');
-            const status = document.getElementById('init-status-text');
-
-            const interval = setInterval(() => {
-                progress += 4;
-                bar.style.width = progress + '%';
-                if(progress === 28) status.innerText = "Загрузка ядра Linux Security Kernel...";
-                if(progress === 56) status.innerText = "Подключение к Shodan API & CTI-агрегаторам...";
-                if(progress === 84) status.innerText = "Запуск виртуального Linux терминала...";
-
-                if(progress >= 100) {
-                    clearInterval(interval);
-                    document.getElementById('init-screen').style.display = 'none';
-                    runTerminal();
-                }
-            }, 80);
-        }
-
-        /* === 3. НАСТОЯЩИЙ ЖИВОЙ АНИМИРОВАННЫЙ ЛИНУКС ТЕРМИНАЛ === */
-        const terminalCommands = [
-            "uname -a => Linux sec-node 6.8.0-1018-aws #20-Ubuntu SMP x86_64",
-            "systemctl status security-daemon.service --active",
-            "[OK] Started Cybersecurity Intelligence Daemon.",
-            "shodan init API_KEY_VERIFIED_SECURE_NODE_900",
-            "Connecting to https://api.shodan.io/shodan/host/search...",
-            "Downloading CVE threat feeds from CISA, BSI, NIST, Kaspersky...",
-            "Parsing 900 unique security reports across 30 pagination indexes...",
-            "Verifying source links: CISA (cisa.gov), NIST (nvd.nist.gov), Shodan (shodan.io)... OK",
-            "Testing Trustpilot, Sitejabber, ScamAdviser, URLVoid rating nodes... VERIFIED",
-            "Compilation Complete. Initializing Sci-Fi HUD Interface..."
+        const invaderSprite = [
+            [0,0,1,0,0,0,0,0,1,0,0],
+            [0,0,0,1,0,0,0,1,0,0,0],
+            [0,0,1,1,1,1,1,1,1,0,0],
+            [0,1,1,0,1,1,1,0,1,1,0],
+            [1,1,1,1,1,1,1,1,1,1,1],
+            [1,0,1,1,1,1,1,1,1,0,1],
+            [1,0,1,0,0,0,0,0,1,0,1],
+            [0,0,0,1,1,0,1,1,0,0,0]
         ];
 
-        function runTerminal() {
-            const term = document.getElementById('terminal-screen');
-            const content = document.getElementById('terminal-content');
-            term.style.display = 'block';
+        let fallingIcons = [];
+        for(let i = 0; i < 15; i++) {
+            fallingIcons.push({
+                x: Math.random() * fallWidth,
+                y: Math.random() * fallHeight,
+                speed: 1 + Math.random() * 2,
+                scale: 1.5 + Math.random() * 1.5
+            });
+        }
 
-            let cmdIndex = 0;
-            let charIndex = 0;
-            let currentLine = null;
+        function drawFallingIcons() {
+            fallCtx.clearRect(0, 0, fallWidth, fallHeight);
+            fallCtx.fillStyle = "#000";
 
-            function typeNextChar() {
-                if (cmdIndex < terminalCommands.length) {
-                    if (charIndex === 0) {
-                        currentLine = document.createElement('div');
-                        currentLine.className = 'term-line';
-                        currentLine.innerHTML = `<span style="color:#00FF66">root@sec-terminal:~#</span> `;
-                        content.appendChild(currentLine);
+            fallingIcons.forEach(icon => {
+                icon.y += icon.speed;
+                if(icon.y > fallHeight) {
+                    icon.y = -20;
+                    icon.x = Math.random() * fallWidth;
+                }
+
+                const pixelSize = icon.scale;
+                for(let r = 0; r < 8; r++) {
+                    for(let c = 0; c < 11; c++) {
+                        if(invaderSprite[r][c] === 1) {
+                            fallCtx.fillRect(icon.x + c * pixelSize, icon.y + r * pixelSize, pixelSize, pixelSize);
+                        }
                     }
-
-                    const fullText = terminalCommands[cmdIndex];
-                    currentLine.innerHTML = `<span style="color:#00FF66">root@sec-terminal:~#</span> ${fullText.substring(0, charIndex + 1)}<span class="cursor"></span>`;
-                    charIndex++;
-                    term.scrollTop = term.scrollHeight;
-
-                    if (charIndex < fullText.length) {
-                        setTimeout(typeNextChar, 15);
-                    } else {
-                        // Убираем курсор у завершенной строки
-                        currentLine.innerHTML = `<span style="color:#00FF66">root@sec-terminal:~#</span> ${fullText}`;
-                        cmdIndex++;
-                        charIndex = 0;
-                        setTimeout(typeNextChar, 200);
-                    }
-                } else {
-                    setTimeout(() => {
-                        term.style.display = 'none';
-                        document.getElementById('scifi-hud-screen').style.display = 'flex';
-                        startHudAnimations();
-                    }, 800);
                 }
-            }
-            typeNextChar();
-        }
-
-        /* === 4. АНИМАЦИИ ДЛЯ HUD-ИНТЕРФЕЙСА === */
-        function startHudAnimations() {
-            // Осциллограф Canvas
-            const oscCanvas = document.getElementById('osc-canvas');
-            const oscCtx = oscCanvas.getContext('2d');
-            oscCanvas.width = oscCanvas.clientWidth;
-            oscCanvas.height = oscCanvas.clientHeight;
-
-            let step = 0;
-            function drawWave() {
-                oscCtx.fillStyle = "rgba(0,0,0,0.2)";
-                oscCtx.fillRect(0, 0, oscCanvas.width, oscCanvas.height);
-                oscCtx.beginPath();
-                oscCtx.lineWidth = 2;
-                oscCtx.strokeStyle = "#00FF66";
-
-                const height = oscCanvas.height;
-                const width = oscCanvas.width;
-
-                for (let x = 0; x < width; x++) {
-                    const y = Math.sin((x + step) * 0.05) * 20 + Math.cos((x + step) * 0.02) * 10 + height / 2;
-                    if (x === 0) oscCtx.moveTo(x, y);
-                    else oscCtx.lineTo(x, y);
-                }
-                oscCtx.stroke();
-                step += 2;
-                requestAnimationFrame(drawWave);
-            }
-            drawWave();
-
-            // Бегающий код BIOS
-            const codeBox = document.getElementById('code-box');
-            const codeSnippets = [
-                "function scanNodes() {",
-                "  shodan.search('port:80,443');",
-                "  if (cve.risk > 8.0) {",
-                "    triggerAlert(cve.id);",
-                "  }",
-                "}",
-                "// Connecting to BSI Germany...",
-                "// CISA Advisory status: ACTIVE",
-                "// Memory dump: 0x884F... OK"
-            ];
-            let cIndex = 0;
-            setInterval(() => {
-                codeBox.innerHTML += codeSnippets[cIndex % codeSnippets.length] + "<br>";
-                codeBox.scrollTop = codeBox.scrollHeight;
-                cIndex++;
-            }, 800);
-
-            // Динамика нагрузки CPU/GPU
-            setInterval(() => {
-                document.getElementById('cpu-val').innerText = (35 + Math.floor(Math.random() * 20)) + "%";
-                document.getElementById('gpu-val').innerText = (85 + Math.floor(Math.random() * 10)) + "%";
-                document.getElementById('sd-1').innerText = 1000 + Math.floor(Math.random() * 500);
-                document.getElementById('sd-3').innerText = 3000 + Math.floor(Math.random() * 500);
-            }, 1500);
-        }
-
-        function openWorkspace() {
-            document.getElementById('scifi-hud-screen').style.display = 'none';
-            document.getElementById('workspace').style.display = 'block';
-            renderPage(1);
-            renderPagination();
-        }
-
-        /* === 5. ПРОВЕРЕННЫЕ ИСТОЧНИКИ И ОТЗЫВЫ === */
-        const verifiedRealSources = [
-            { name: "Shodan (IoT Search Engine)", country: "США / Global 🌐", domain: "shodan.io", cat: "shodan", url: "https://www.shodan.io" },
-            { name: "CISA (США)", country: "США 🇺🇸", domain: "cisa.gov", cat: "cert", url: "https://www.cisa.gov/news-events/cybersecurity-advisories" },
-            { name: "NIST NVD", country: "США 🇺🇸", domain: "nvd.nist.gov", cat: "cert", url: "https://nvd.nist.gov/" },
-            { name: "BSI (Германия)", country: "Германия 🇩🇪", domain: "bsi.bund.de", cat: "cert", url: "https://www.bsi.bund.de/DE/Home/home_node.html" },
-            { name: "ANSSI (Франция)", country: "Франция 🇫🇷", domain: "ssi.gouv.fr", cat: "cert", url: "https://www.ssi.gouv.fr/" },
-            { name: "JPCERT/CC", country: "Япония 🇯🇵", domain: "jpcert.or.jp", cat: "cert", url: "https://www.jpcert.or.jp/english/" },
-            { name: "Microsoft Security", country: "США 🇺🇸", domain: "msrc.microsoft.com", cat: "vendor", url: "https://msrc.microsoft.com/update-guide" },
-            { name: "Kaspersky Securelist", country: "Международный 🌐", domain: "securelist.com", cat: "cti", url: "https://securelist.com/" },
-            { name: "Cisco Talos", country: "США 🇺🇸", domain: "talosintelligence.com", cat: "cti", url: "https://blog.talosintelligence.com/" },
-            { name: "Palo Alto Unit 42", country: "США 🇺🇸", domain: "unit42.paloaltonetworks.com", cat: "cti", url: "https://unit42.paloaltonetworks.com/" },
-            { name: "BleepingComputer", country: "США 🇺🇸", domain: "bleepingcomputer.com", cat: "media", url: "https://www.bleepingcomputer.com/" },
-            { name: "The Hacker News", country: "Международный 🌐", domain: "thehackernews.com", cat: "media", url: "https://thehackernews.com/" },
-            { name: "Habr CyberSec", country: "СНГ 🌐", domain: "habr.com", cat: "media", url: "https://habr.com/ru/hubs/cybersecurity/articles/" },
-            { name: "Wiz Research", country: "Израиль/США 🇮🇱", domain: "wiz.io", cat: "cloud", url: "https://www.wiz.io/blog" },
-            { name: "DFIR Report", country: "Международный 🌐", domain: "thedfirreport.com", cat: "cti", url: "https://thedfirreport.com/" },
-            { name: "Reddit /r/netsec", country: "США 🇺🇸", domain: "reddit.com", cat: "media", url: "https://www.reddit.com/r/netsec/" }
-        ];
-
-        const reviewPlatforms = [
-            { name: "Trustpilot", url: "https://www.trustpilot.com/review/" },
-            { name: "Sitejabber", url: "https://www.sitejabber.com/reviews/" },
-            { name: "ScamAdviser", url: "https://www.scamadviser.com/check-website/" },
-            { name: "URLVoid", url: "https://www.urlvoid.com/scan/" },
-            { name: "Google Safe Browsing", url: "https://transparencyreport.google.com/safe-browsing/search?url=" },
-            { name: "Otsovik / iRecommend", url: "https://otzovik.com" }
-        ];
-
-        function generateArticles() {
-            const articles = [];
-            let idCounter = 1000;
-
-            const topics = [
-                "Сканирование незащищенных IoT-устройств и открытых портов (Shodan Recon)",
-                "Анализ критических уязвимостей нулевого дня",
-                "Отчет по активным кампаниям APT-группировок",
-                "Обновление базы CVE и векторов эксплойтов",
-                "Расследование атак вымогателей (Ransomware)",
-                "Аналитика безопасности облачной инфраструктуры",
-                "Разбор векторов атак на сетевые сервисы и промышленные системы"
-            ];
-
-            for (let page = 1; page <= 30; page++) {
-                for (let i = 1; i <= 30; i++) {
-                    idCounter++;
-                    const src = verifiedRealSources[(page * 30 + i) % verifiedRealSources.length];
-                    const topic = topics[(page + i) % topics.length];
-
-                    articles.push({
-                        id: idCounter,
-                        page: page,
-                        title: `[INCIDENT #${idCounter}] ${topic} — ${src.name}`,
-                        sourceName: src.name,
-                        country: src.country,
-                        domain: src.domain,
-                        cat: src.cat,
-                        date: `2026-0${(page % 8) + 1}-${(i % 28) + 1}`,
-                        directUrl: src.url,
-                        opinion: `Экспертная оценка #${idCounter}: Публикация верифицирована. Источник входит в список официальных узлов безопасности. Ссылка открывается без ошибок.`,
-                        reviews: [
-                            { site: "Trustpilot", score: "4.9 / 5.0", status: "Verified Trust" },
-                            { site: "Sitejabber", score: "4.8 / 5.0", status: "Legit" },
-                            { site: "ScamAdviser", score: "100 / 100", status: "Safe" },
-                            { site: "URLVoid", score: "0 / 36 Clean", status: "No Threats" },
-                            { site: "Google Safe Browsing", score: "Clean", status: "No Malware" },
-                            { site: "Otsovik/iRecommend", score: "5.0 / 5.0", status: "Высокое доверие" }
-                        ]
-                    });
-                }
-            }
-            return articles;
-        }
-
-        const allArticles = generateArticles();
-        let currentPage = 1;
-
-        function renderPage(pageNumber) {
-            currentPage = pageNumber;
-            const container = document.getElementById('feed');
-            container.innerHTML = '';
-
-            const pageArticles = allArticles.filter(a => a.page === pageNumber);
-
-            pageArticles.forEach(item => {
-                const card = document.createElement('div');
-                card.className = 'card';
-
-                let reviewsHTML = '';
-                item.reviews.forEach(r => {
-                    const revSource = reviewPlatforms.find(p => p.name.includes(r.site.split(' ')[0])) || reviewPlatforms[0];
-                    reviewsHTML += `
-                        <div class="review-site-badge">
-                            <strong>${r.site}</strong>
-                            <span>Оценка: ${r.score}</span>
-                            <span style="color:#00FF66; font-size:10px;">${r.status}</span>
-                            <a href="${revSource.url}${item.domain}" target="_blank" style="color:#00FF66; margin-top:3px; font-size:9px;">[Проверить отзыв]</a>
-                        </div>
-                    `;
-                });
-
-                card.innerHTML = `
-                    <div class="card-header">
-                        <div>
-                            <strong>Источник:</strong> ${item.sourceName} | 
-                            <strong>Страна:</strong> ${item.country} | 
-                            <strong>Домен:</strong> ${item.domain}
-                        </div>
-                        <div class="card-meta">Дата: ${item.date}</div>
-                    </div>
-
-                    <h2 class="card-title">${item.title}</h2>
-
-                    <div class="card-opinion">
-                        <strong>Аналитика и экспертное мнение:</strong><br>
-                        ${item.opinion}
-                    </div>
-
-                    <div class="card-reviews-block">
-                        <div style="font-size:12px; font-weight:bold; display:flex; justify-content:space-between; align-items:center;">
-                            <span>ПРОВЕРКА ИСТОЧНИКА НА 6 МЕЖДУНАРОДНЫХ ПЛАТФОРМАХ ОТЗЫВОВ:</span>
-                            <a href="https://www.google.com/search?q=reviews+${item.domain}" target="_blank" style="color:#00FF66; font-size:11px;">[⚙️ Перейти к отзывам источника]</a>
-                        </div>
-                        <div class="reviews-grid">
-                            ${reviewsHTML}
-                        </div>
-                    </div>
-
-                    <a href="${item.directUrl}" target="_blank" class="btn-direct-link">🔗 ПЕРЕЙТИ ПРЯМО К ИСТОЧНИКУ (${item.domain})</a>
-                `;
-
-                container.appendChild(card);
             });
 
-            window.scrollTo({ top: 0, behavior: 'smooth' });
+            requestAnimationFrame(drawFallingIcons);
+        }
+        drawFallingIcons();
+
+        // --- ЛОГИКА ИНТЕРФЕЙСА ---
+        const CORRECT_LOGIN = "admin";
+        const CORRECT_PASS = "1234";
+
+        let currentNavLevel = "AUTH"; 
+        let activeMenuIndex = 0;
+        let selectedCategory = "";
+        let selectedCardIndex = 0;
+        let activeGame = "";
+
+        const menuTree = {
+            "1.ГЛОБАЛЬНЫЙ ПОИСК": {
+                icon: "📡",
+                items: [
+                    "1.1. ПОИСК ПО ВСЕМ ИСТОЧНИКАМ",
+                    "1.2. АНАЛИТИКА КИБЕРУГРОЗ",
+                    "1.3. ПОИСК CVE И ЭКСПЛОИТОВ"
+                ]
+            },
+            "2.СОЦИАЛЬНЫЕ СЕТИ СТИ": {
+                icon: "💬",
+                items: [
+                    "2.1. TELEGRAM CTI КАНАЛЫ",
+                    "2.2. TWITTER / X КИБЕРБЕЗОПАСНОСТЬ",
+                    "2.3. REDDIT INFOSEC"
+                ]
+            },
+            "3.SHODAN CTI": {
+                icon: "🔍",
+                items: [
+                    "3.1. ПОИСК ХОСТОВ И ИНФРАСТРУКТУРЫ",
+                    "3.2. УЯЗВИМЫЕ УСТРОЙСТВА",
+                    "3.3. СКАНЕР СЕТЕВЫХ ПОРТОВ"
+                ]
+            },
+            "4.СКРИПТЫ GITHUB": {
+                icon: "🔑",
+                items: [
+                    "4.1. ТОП ЭКСПЛОИТОВ PYTHON",
+                    "4.2. BASH АВТОМАТИЗАЦИЯ ПОИСКА",
+                    "4.3. ПОТОК РЕПОЗИТОРИЕВ"
+                ]
+            },
+            "5.КИБЕРНОВОСТИ РФ": {
+                icon: "🛡️",
+                items: [
+                    "5.1. POSITIVE RESEARCH",
+                    "5.2. KASPERSKY SECURELIST",
+                    "5.3. SECURITYLAB / LENTA",
+                    "5.4. HABR INFOSEC STREAM",
+                    "5.5. RST CLOUD CTI"
+                ]
+            },
+            "6.15 СТРАН CTI": {
+                icon: "🌐",
+                items: [
+                    "6.01. РОССИЯ (RU)",
+                    "6.02. США (US)",
+                    "6.03. ИЗРАИЛЬ (IL)",
+                    "6.04. ВЕЛИКОБРИТАНИЯ (UK)",
+                    "6.05. КИТАЙ (CN)",
+                    "6.06. ГЕРМАНИЯ (DE)",
+                    "6.07. ФРАНЦИЯ (FR)",
+                    "6.08. ЯПОНИЯ (JP)",
+                    "6.09. ЮЖНАЯ КОРЕЯ (KR)",
+                    "6.10. ИНДИЯ (IN)",
+                    "6.11. ИРАН (IR)",
+                    "6.12. НИДЕРЛАНДЫ (NL)",
+                    "6.13. СИНГАПУР (SG)",
+                    "6.14. КАНАДА (CA)",
+                    "6.15. АВСТРАЛИЯ (AU)"
+                ]
+            },
+            "7.ИГРЫ": {
+                icon: "🎮",
+                items: [
+                    "7.1. ЗМЕЙКА",
+                    "7.2. ТЕТРИС"
+                ]
+            }
+        };
+
+        const telegramArticles = [
+            { title: "TG @cti_feed: Опубликован новый список C2 сервера LockBit", source: "Telegram @cti_feed", trust: "9.8/10", url: "https://t.me/s/cti_feed" },
+            { title: "TG @infosec_ru: Утечка базы данных крупного онлайн-ритейлера", source: "Telegram @infosec_ru", trust: "9.5/10", url: "https://t.me/s/infosec_ru" }
+        ];
+
+        const twitterArticles = [
+            { title: "X/Twitter @vxunderground: Анализ исходного кода нового руткита", source: "Twitter/X @vxunderground", trust: "9.9/10", url: "https://twitter.com/vxunderground" }
+        ];
+
+        const redditArticles = [
+            { title: "Reddit r/netsec: Опубликован 0-day PoC эксплойт для VMware", source: "Reddit r/netsec", trust: "9.7/10", url: "https://www.reddit.com/r/netsec/" }
+        ];
+
+        const russianArticles = [
+            { title: "PT SWARM: Анализ критической уязвимости в WAF системах", source: "Positive Technologies", trust: "9.9/10", url: "https://www.ptsecurity.com/ru-ru/research/pt-swarm/" }
+        ];
+
+        const githubArticles = [
+            { title: "AutoExploit-CVE-2024: Автоматизация RCE скриптов", source: "GitHub Repo", trust: "9.8/10", url: "https://github.com/trending/python" }
+        ];
+
+        function lockDevice() {
+            stopGame();
+            currentNavLevel = "AUTH";
+            document.getElementById('os-menu').style.display = 'none';
+            document.getElementById('search-view').style.display = 'none';
+            document.getElementById('feed-view').style.display = 'none';
+            document.getElementById('boot-terminal').style.display = 'none';
+            document.getElementById('game-view').style.display = 'none';
+
+            document.getElementById('fl-username').value = "";
+            document.getElementById('fl-password').value = "";
+            document.getElementById('auth-error').style.display = 'none';
+            document.getElementById('auth-view').style.display = 'flex';
+            document.getElementById('os-status').innerText = 'LOCKED';
         }
 
-        function renderPagination() {
-            const nav = document.getElementById('pagination');
-            nav.innerHTML = '';
+        function checkAuth() {
+            const user = document.getElementById('fl-username').value;
+            const pass = document.getElementById('fl-password').value;
+            const error = document.getElementById('auth-error');
 
-            for (let i = 1; i <= 30; i++) {
-                const btn = document.createElement('button');
-                btn.className = `page-btn ${i === currentPage ? 'active' : ''}`;
-                btn.innerText = i;
-                btn.onclick = () => {
-                    renderPage(i);
-                    renderPagination();
-                };
-                nav.appendChild(btn);
+            if (user === CORRECT_LOGIN && pass === CORRECT_PASS) {
+                error.style.display = 'none';
+                document.getElementById('auth-view').style.display = 'none';
+                connectToHost("Loading FreeRTOS Core...", () => {
+                    renderMainMenu();
+                });
+            } else {
+                error.style.display = 'block';
             }
         }
 
-        function applyFilters() {
-            alert("Фильтры успешно применены!");
-            renderPage(1);
-            renderPagination();
+        function connectToHost(message, callback) {
+            const term = document.getElementById('boot-terminal');
+            const status = document.getElementById('os-status');
+            
+            term.style.display = 'block';
+            term.innerHTML = "";
+            status.innerText = 'CONNECTING';
+
+            const logs = [
+                "Init host connection...",
+                `Target: cti-gateway.internal`,
+                message,
+                "Status: 200 OK"
+            ];
+
+            let i = 0;
+            const interval = setInterval(() => {
+                if (i < logs.length) {
+                    term.innerHTML += logs[i] + "\n";
+                    term.scrollTop = term.scrollHeight;
+                    i++;
+                } else {
+                    clearInterval(interval);
+                    setTimeout(() => {
+                        term.style.display = 'none';
+                        callback();
+                    }, 200);
+                }
+            }, 50);
+        }
+
+        function renderMainMenu() {
+            stopGame();
+            currentNavLevel = "МЕНЮ";
+            const menu = document.getElementById('os-menu');
+            menu.style.display = 'flex';
+            document.getElementById('search-view').style.display = 'none';
+            document.getElementById('feed-view').style.display = 'none';
+            document.getElementById('game-view').style.display = 'none';
+            document.getElementById('os-status').innerText = 'MAIN MENU';
+            
+            menu.innerHTML = "";
+            const keys = Object.keys(menuTree);
+            keys.forEach((key, index) => {
+                const item = document.createElement('div');
+                item.className = `menu-item ${index === 0 ? 'active' : ''}`;
+                item.innerHTML = `<span>${key}</span><span class="menu-icon">${menuTree[key].icon}</span>`;
+                item.onclick = () => selectMainMenu(key, index);
+                menu.appendChild(item);
+            });
+            activeMenuIndex = 0;
+        }
+
+        function renderSubMenu(categoryKey) {
+            stopGame();
+            currentNavLevel = "ПОДМЕНЮ";
+            selectedCategory = categoryKey;
+            const menu = document.getElementById('os-menu');
+            menu.style.display = 'flex';
+            document.getElementById('search-view').style.display = 'none';
+            document.getElementById('feed-view').style.display = 'none';
+            document.getElementById('game-view').style.display = 'none';
+            menu.innerHTML = "";
+            document.getElementById('os-status').innerText = 'SUB MENU';
+
+            const subItems = menuTree[categoryKey].items;
+            subItems.forEach((sub, index) => {
+                const item = document.createElement('div');
+                item.className = `menu-item ${index === 0 ? 'active' : ''}`;
+                item.innerHTML = `<span>${sub}</span><span class="menu-icon">►</span>`;
+                item.onclick = () => selectSubCategory(sub, index);
+                menu.appendChild(item);
+            });
+            activeMenuIndex = 0;
+        }
+
+        function selectMainMenu(key, index) {
+            activeMenuIndex = index;
+            highlightMenuItem();
+            connectToHost(`Loading ${key}...`, () => {
+                renderSubMenu(key);
+            });
+        }
+
+        function selectSubCategory(subKey, index) {
+            activeMenuIndex = index;
+            highlightMenuItem();
+
+            connectToHost(`Route: ${subKey}...`, () => {
+                if (selectedCategory === "7.ИГРЫ") {
+                    if (subKey.includes("ЗМЕЙКА")) startSnakeGame();
+                    else if (subKey.includes("ТЕТРИС")) startTetrisGame();
+                } else if (selectedCategory === "5.КИБЕРНОВОСТИ РФ") {
+                    renderFeedView(subKey, "russian");
+                } else if (selectedCategory === "2.СОЦИАЛЬНЫЕ СЕТИ СТИ") {
+                    if (subKey.includes("TELEGRAM")) renderFeedView(subKey, "telegram");
+                    else if (subKey.includes("TWITTER")) renderFeedView(subKey, "twitter");
+                    else if (subKey.includes("REDDIT")) renderFeedView(subKey, "reddit");
+                } else if (selectedCategory === "4.СКРИПТЫ GITHUB") {
+                    renderFeedView(subKey, "github");
+                } else {
+                    renderSearchView(subKey);
+                }
+            });
+        }
+
+        function renderSearchView(title) {
+            currentNavLevel = "ПОИСК";
+            document.getElementById('os-menu').style.display = 'none';
+            const searchView = document.getElementById('search-view');
+            searchView.style.display = 'flex';
+            document.getElementById('search-title').innerText = title;
+            document.getElementById('os-status').innerText = 'SEARCH';
+        }
+
+        function executeSearch() {
+            const query = document.getElementById('fl-search-input').value || "Global Query";
+            connectToHost(`Search: "${query}"...`, () => {
+                renderFeedView(query, "web");
+            });
+        }
+
+        function renderFeedView(query, feedType = "web") {
+            currentNavLevel = "ЛЕНТА";
+            document.getElementById('search-view').style.display = 'none';
+            document.getElementById('os-menu').style.display = 'none';
+            const feedView = document.getElementById('feed-view');
+            feedView.style.display = 'flex';
+            feedView.innerHTML = "";
+
+            let dataSource = telegramArticles;
+            if (feedType === "telegram") dataSource = telegramArticles;
+            else if (feedType === "twitter") dataSource = twitterArticles;
+            else if (feedType === "reddit") dataSource = redditArticles;
+            else if (feedType === "russian") dataSource = russianArticles;
+            else if (feedType === "github") dataSource = githubArticles;
+
+            document.getElementById('os-status').innerText = feedType.toUpperCase();
+            selectedCardIndex = 0;
+
+            for (let i = 0; i < 10; i++) {
+                const item = dataSource[i % dataSource.length];
+                const card = document.createElement('div');
+                card.className = `screen-card ${i === 0 ? 'selected-card' : ''}`;
+                card.id = `card-${i}`;
+                
+                card.innerHTML = `
+                    <div class="screen-card-title">[#${i + 1}] ${item.title}</div>
+                    <div>Source: <b>${item.source}</b> | Trust: <b>${item.trust}</b></div>
+                    <div class="screen-card-meta">
+                        URL: <a href="${item.url}" target="_blank" class="screen-link">Open Intel Source</a>
+                    </div>
+                `;
+                feedView.appendChild(card);
+            }
+            feedView.scrollTop = 0;
+        }
+
+        /* ------------------ ИГРОВОЙ ДВИЖОК ------------------ */
+        let gameLoop = null;
+        let isGameOver = false;
+
+        let snake = [];
+        let snakeDir = { x: 1, y: 0 };
+        let nextDir = { x: 1, y: 0 };
+        let food = { x: 0, y: 0 };
+        let snakeScore = 0;
+        let snakeHighScore = 0;
+
+        function startSnakeGame() {
+            activeGame = "SNAKE";
+            currentNavLevel = "ИГРА";
+            document.getElementById('os-menu').style.display = 'none';
+            document.getElementById('game-view').style.display = 'flex';
+            document.getElementById('os-status').innerText = 'SNAKE';
+
+            const canvas = document.getElementById('game-canvas');
+            const ctx = canvas.getContext('2d');
+
+            snake = [{ x: 5, y: 10 }, { x: 4, y: 10 }, { x: 3, y: 10 }];
+            snakeDir = { x: 1, y: 0 };
+            nextDir = { x: 1, y: 0 };
+            snakeScore = 0;
+            isGameOver = false;
+
+            updateGameHeaders(snakeScore, snakeHighScore);
+            spawnFood();
+
+            if (gameLoop) clearInterval(gameLoop);
+            gameLoop = setInterval(() => updateSnake(ctx), 110);
+        }
+
+        function spawnFood() {
+            food = {
+                x: Math.floor(Math.random() * (280 / 10)),
+                y: Math.floor(Math.random() * (200 / 10))
+            };
+        }
+
+        function updateSnake(ctx) {
+            if (isGameOver) return;
+
+            snakeDir = { ...nextDir };
+            const head = { x: snake[0].x + snakeDir.x, y: snake[0].y + snakeDir.y };
+
+            if (head.x < 0 || head.x >= 28 || head.y < 0 || head.y >= 20 || snake.some(s => s.x === head.x && s.y === head.y)) {
+                isGameOver = true;
+                if (snakeScore > snakeHighScore) snakeHighScore = snakeScore;
+                updateGameHeaders(snakeScore, snakeHighScore);
+                
+                drawSnake(ctx);
+                ctx.fillStyle = "#000";
+                ctx.font = "bold 24px VT323";
+                ctx.fillText("GAME OVER", 90, 90);
+                ctx.font = "bold 16px VT323";
+                ctx.fillText("Press OK to Restart", 80, 120);
+                return;
+            }
+
+            snake.unshift(head);
+
+            if (head.x === food.x && head.y === food.y) {
+                snakeScore += 10;
+                if (snakeScore > snakeHighScore) snakeHighScore = snakeScore;
+                updateGameHeaders(snakeScore, snakeHighScore);
+                spawnFood();
+            } else {
+                snake.pop();
+            }
+
+            drawSnake(ctx);
+        }
+
+        function drawSnake(ctx) {
+            ctx.fillStyle = "#ff9100";
+            ctx.fillRect(0, 0, 280, 200);
+
+            ctx.fillStyle = "#000";
+            ctx.fillRect(food.x * 10, food.y * 10, 9, 9);
+
+            snake.forEach((seg, i) => {
+                ctx.fillStyle = i === 0 ? "#000" : "#333";
+                ctx.fillRect(seg.x * 10, seg.y * 10, 9, 9);
+            });
+        }
+
+        const COLS = 12, ROWS = 18, BLOCK_SIZE = 10;
+        let tetrisBoard = [];
+        let tetrisScore = 0;
+        let tetrisHighScore = 0;
+        let currentPiece = null;
+
+        const SHAPES = [
+            [[1, 1, 1, 1]],
+            [[1, 1], [1, 1]],
+            [[1, 1, 1], [0, 1, 0]],
+            [[1, 1, 1], [1, 0, 0]],
+            [[1, 1, 0], [0, 1, 1]]
+        ];
+
+        function startTetrisGame() {
+            activeGame = "TETRIS";
+            currentNavLevel = "ИГРА";
+            document.getElementById('os-menu').style.display = 'none';
+            document.getElementById('game-view').style.display = 'flex';
+            document.getElementById('os-status').innerText = 'TETRIS';
+
+            const canvas = document.getElementById('game-canvas');
+            const ctx = canvas.getContext('2d');
+
+            tetrisBoard = Array.from({ length: ROWS }, () => Array(COLS).fill(0));
+            tetrisScore = 0;
+            isGameOver = false;
+
+            updateGameHeaders(tetrisScore, tetrisHighScore);
+            spawnTetrisPiece();
+
+            if (gameLoop) clearInterval(gameLoop);
+            gameLoop = setInterval(() => updateTetris(ctx), 400);
+        }
+
+        function spawnTetrisPiece() {
+            const shape = SHAPES[Math.floor(Math.random() * SHAPES.length)];
+            currentPiece = {
+                shape: shape,
+                x: Math.floor(COLS / 2) - Math.floor(shape[0].length / 2),
+                y: 0
+            };
+
+            if (collide(tetrisBoard, currentPiece)) {
+                isGameOver = true;
+                if (tetrisScore > tetrisHighScore) tetrisHighScore = tetrisScore;
+                updateGameHeaders(tetrisScore, tetrisHighScore);
+            }
+        }
+
+        function collide(board, piece) {
+            for (let r = 0; r < piece.shape.length; r++) {
+                for (let c = 0; c < piece.shape[r].length; c++) {
+                    if (piece.shape[r][c]) {
+                        let newX = piece.x + c;
+                        let newY = piece.y + r;
+                        if (newX < 0 || newX >= COLS || newY >= ROWS || (newY >= 0 && board[newY][newX])) {
+                            return true;
+                        }
+                    }
+                }
+            }
+            return false;
+        }
+
+        function updateTetris(ctx) {
+            if (isGameOver) {
+                drawTetris(ctx);
+                ctx.fillStyle = "#000";
+                ctx.font = "bold 24px VT323";
+                ctx.fillText("GAME OVER", 90, 90);
+                ctx.font = "bold 16px VT323";
+                ctx.fillText("Press OK to Restart", 80, 120);
+                return;
+            }
+
+            currentPiece.y++;
+            if (collide(tetrisBoard, currentPiece)) {
+                currentPiece.y--;
+                mergePiece();
+                clearLines();
+                spawnTetrisPiece();
+            }
+
+            drawTetris(ctx);
+        }
+
+        function mergePiece() {
+            currentPiece.shape.forEach((row, r) => {
+                row.forEach((value, c) => {
+                    if (value) tetrisBoard[currentPiece.y + r][currentPiece.x + c] = 1;
+                });
+            });
+        }
+
+        function clearLines() {
+            let linesCleared = 0;
+            for (let r = ROWS - 1; r >= 0; r--) {
+                if (tetrisBoard[r].every(val => val === 1)) {
+                    tetrisBoard.splice(r, 1);
+                    tetrisBoard.unshift(Array(COLS).fill(0));
+                    linesCleared++;
+                    r++;
+                }
+            }
+            if (linesCleared > 0) {
+                tetrisScore += linesCleared * 20;
+                if (tetrisScore > tetrisHighScore) tetrisHighScore = tetrisScore;
+                updateGameHeaders(tetrisScore, tetrisHighScore);
+            }
+        }
+
+        function drawTetris(ctx) {
+            ctx.fillStyle = "#ff9100";
+            ctx.fillRect(0, 0, 280, 200);
+
+            const offsetX = 80;
+
+            ctx.strokeStyle = "#000";
+            ctx.strokeRect(offsetX - 2, 0, COLS * BLOCK_SIZE + 4, ROWS * BLOCK_SIZE + 2);
+
+            for (let r = 0; r < ROWS; r++) {
+                for (let c = 0; c < COLS; c++) {
+                    if (tetrisBoard[r][c]) {
+                        ctx.fillStyle = "#000";
+                        ctx.fillRect(offsetX + c * BLOCK_SIZE, r * BLOCK_SIZE, BLOCK_SIZE - 1, BLOCK_SIZE - 1);
+                    }
+                }
+            }
+
+            if (currentPiece && !isGameOver) {
+                ctx.fillStyle = "#222";
+                currentPiece.shape.forEach((row, r) => {
+                    row.forEach((value, c) => {
+                        if (value) {
+                            ctx.fillRect(offsetX + (currentPiece.x + c) * BLOCK_SIZE, (currentPiece.y + r) * BLOCK_SIZE, BLOCK_SIZE - 1, BLOCK_SIZE - 1);
+                        }
+                    });
+                });
+            }
+        }
+
+        function rotateTetrisPiece() {
+            if (!currentPiece) return;
+            const rotated = currentPiece.shape[0].map((_, i) => currentPiece.shape.map(row => row[i]).reverse());
+            const previousShape = currentPiece.shape;
+            currentPiece.shape = rotated;
+            if (collide(tetrisBoard, currentPiece)) currentPiece.shape = previousShape;
+        }
+
+        function updateGameHeaders(score, high) {
+            document.getElementById('game-score-lbl').innerText = `SCORE: ${score}`;
+            document.getElementById('game-high-lbl').innerText = `HIGH: ${high}`;
+        }
+
+        function stopGame() {
+            if (gameLoop) {
+                clearInterval(gameLoop);
+                gameLoop = null;
+            }
+        }
+
+        /* ------------------ НАВИГАЦИЯ И УПРАВЛЕНИЕ ------------------ */
+        function resetMenu() {
+            if (currentNavLevel === "AUTH") return;
+            stopGame();
+            if (currentNavLevel === "ЛЕНТА" || currentNavLevel === "ПОИСК" || currentNavLevel === "ИГРА") {
+                renderSubMenu(selectedCategory);
+            } else if (currentNavLevel === "ПОДМЕНЮ") {
+                renderMainMenu();
+            }
+        }
+
+        function navMenu(dir) {
+            if (currentNavLevel === "AUTH") return;
+
+            if (currentNavLevel === "ИГРА") {
+                const ctx = document.getElementById('game-canvas').getContext('2d');
+                if (activeGame === "SNAKE") {
+                    if (dir === 'up' && snakeDir.y === 0) nextDir = { x: 0, y: -1 };
+                    if (dir === 'down' && snakeDir.y === 0) nextDir = { x: 0, y: 1 };
+                    if (dir === 'left' && snakeDir.x === 0) nextDir = { x: -1, y: 0 };
+                    if (dir === 'right' && snakeDir.x === 0) nextDir = { x: 1, y: 0 };
+                } else if (activeGame === "TETRIS" && !isGameOver) {
+                    if (dir === 'left') {
+                        currentPiece.x--;
+                        if (collide(tetrisBoard, currentPiece)) currentPiece.x++;
+                    }
+                    if (dir === 'right') {
+                        currentPiece.x++;
+                        if (collide(tetrisBoard, currentPiece)) currentPiece.x--;
+                    }
+                    if (dir === 'up') rotateTetrisPiece();
+                    if (dir === 'down') updateTetris(ctx);
+                    drawTetris(ctx);
+                }
+                return;
+            }
+
+            if (currentNavLevel === "ЛЕНТА") {
+                const cards = document.querySelectorAll('.screen-card');
+                if (dir === 'up' || dir === 'left') {
+                    if (selectedCardIndex > 0) {
+                        cards[selectedCardIndex].classList.remove('selected-card');
+                        selectedCardIndex--;
+                        cards[selectedCardIndex].classList.add('selected-card');
+                        cards[selectedCardIndex].scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                    }
+                } else if (dir === 'down' || dir === 'right') {
+                    if (selectedCardIndex < cards.length - 1) {
+                        cards[selectedCardIndex].classList.remove('selected-card');
+                        selectedCardIndex++;
+                        cards[selectedCardIndex].classList.add('selected-card');
+                        cards[selectedCardIndex].scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                    }
+                }
+                return;
+            }
+
+            const items = document.querySelectorAll('.menu-item');
+            if (items.length === 0) return;
+
+            items[activeMenuIndex].classList.remove('active');
+
+            if (dir === 'up' || dir === 'left') {
+                activeMenuIndex = (activeMenuIndex - 1 + items.length) % items.length;
+            } else if (dir === 'down' || dir === 'right') {
+                activeMenuIndex = (activeMenuIndex + 1) % items.length;
+            }
+
+            items[activeMenuIndex].classList.add('active');
+        }
+
+        function highlightMenuItem() {
+            const items = document.querySelectorAll('.menu-item');
+            items.forEach((item, idx) => item.classList.toggle('active', idx === activeMenuIndex));
+        }
+
+        function execMenu() {
+            if (currentNavLevel === "AUTH") return;
+
+            if (currentNavLevel === "ИГРА") {
+                if (isGameOver) {
+                    if (activeGame === "SNAKE") startSnakeGame();
+                    else if (activeGame === "TETRIS") startTetrisGame();
+                }
+                return;
+            }
+
+            if (currentNavLevel === "МЕНЮ") {
+                const keys = Object.keys(menuTree);
+                selectMainMenu(keys[activeMenuIndex], activeMenuIndex);
+            } else if (currentNavLevel === "ПОДМЕНЮ") {
+                const subItems = menuTree[selectedCategory].items;
+                selectSubCategory(subItems[activeMenuIndex], activeMenuIndex);
+            } else if (currentNavLevel === "ПОИСК") {
+                executeSearch();
+            } else if (currentNavLevel === "ЛЕНТА") {
+                const selectedCard = document.getElementById(`card-${selectedCardIndex}`);
+                if (selectedCard) {
+                    const link = selectedCard.querySelector('a');
+                    if (link) window.open(link.href, '_blank');
+                }
+            }
         }
     </script>
 </body>
